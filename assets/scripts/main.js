@@ -787,3 +787,94 @@ if (Utils.isPage('travel')) {
   // ex ) const slider2 = new Slider('slider2');
   // 이미지 개수에 따라 dot 자동 생성 및 슬라이드 이동 가능
 }
+
+
+// development 페이지 스크립트
+if (Utils.isPage('development')) {
+  const emojiContainer = document.querySelector('.emoji--container');
+
+  emojiContainer.addEventListener('click', () => {
+    emojiContainer.classList.toggle('flipped');
+    emojiContainer.classList.add('spinning');
+  });
+}
+
+// sticker 페이지 스크립트
+if (Utils.isPage('stickers')) {
+  // 스티커 컨테이너와 개별 스티커 요소 선택
+  const stickersContainer = document.querySelector('.stickers');
+  const stickerBg = document.querySelector('.sticker--bg');
+  const stickers = document.querySelectorAll('.sticker');
+
+  // 스티커 컨테이너의 스타일 수정
+  stickersContainer.style.position = 'relative';
+
+  // 각 스티커에 대한 이벤트 설정
+  stickers.forEach((sticker, index) => {
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+
+
+    function dragStart(e) {
+      if (e.type === "touchstart") {
+        initialX = e.touches[0].clientX - xOffset;
+        initialY = e.touches[0].clientY - yOffset;
+      } else {
+        initialX = e.clientX - xOffset;
+        initialY = e.clientY - yOffset;
+      }
+
+      if (e.target === sticker) {
+        isDragging = true;
+        sticker.style.cursor = 'grabbing';
+        sticker.style.zIndex = '1000';
+      }
+    }
+
+    function dragEnd() {
+      initialX = currentX;
+      initialY = currentY;
+      isDragging = false;
+      sticker.style.cursor = 'grab';
+      sticker.style.zIndex = '1';
+    }
+
+    function drag(e) {
+      if (isDragging) {
+        e.preventDefault();
+
+        if (e.type === "touchmove") {
+          currentX = e.touches[0].clientX - initialX;
+          currentY = e.touches[0].clientY - initialY;
+        } else {
+          currentX = e.clientX - initialX;
+          currentY = e.clientY - initialY;
+        }
+
+        xOffset = currentX;
+        yOffset = currentY;
+
+        setTranslate(currentX, currentY, sticker);
+      }
+    }
+
+    function setTranslate(xPos, yPos, el) {
+      el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+    }
+
+    // 마우스 이벤트
+    sticker.addEventListener('mousedown', dragStart);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', dragEnd);
+
+    // 터치 이벤트
+    sticker.addEventListener('touchstart', dragStart);
+    document.addEventListener('touchmove', drag, { passive: false });
+    document.addEventListener('touchend', dragEnd);
+  });
+}
