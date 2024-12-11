@@ -569,23 +569,47 @@ if (Utils.isPage('game')) {
   const timerDisplay = document.getElementById('timer');
   const clickDisplay = document.getElementById('clickCount');
 
+  // 오디오 관련 변수
+  let audioContext;
+  let clickBuffer;
+
+  // 오디오 초기화
+  async function initAudio() {
+    try {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const response = await fetch('/assets/sounds/click.mp3');
+      const data = await response.arrayBuffer();
+      clickBuffer = await audioContext.decodeAudioData(data);
+    } catch (error) {
+      console.error('오디오 초기화 실패:', error);
+    }
+  }
+
+  // 클릭 사운드 재생
+  function playClickSound() {
+    if (!audioContext || !clickBuffer) return;
+    const source = audioContext.createBufferSource();
+    const gainNode = audioContext.createGain();
+
+    source.buffer = clickBuffer;
+    gainNode.gain.value = 0.3; // 볼륨 설정
+
+    source.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    source.start(0);
+  }
+
   // 게임 시작
   function startGame() {
     clicks = 0;
     timeLeft = 10;
-
-    // 초기 화면 설정
     clickDisplay.textContent = clicks;
     timerDisplay.textContent = timeLeft;
-
-    // 버튼 활성화/비활성화
     clickButton.disabled = false;
     startButton.disabled = true;
 
-    // 타이머 실행
     timerId = setInterval(() => {
       timerDisplay.textContent = --timeLeft;
-
       if (timeLeft <= 0) endGame();
     }, 1000);
   }
@@ -593,23 +617,25 @@ if (Utils.isPage('game')) {
   // 게임 종료
   function endGame() {
     clearInterval(timerId);
-
-    // 버튼 상태 초기화
     clickButton.disabled = true;
     startButton.disabled = false;
-
     alert(`게임 종료! 총 클릭 수: ${clicks}`);
   }
 
   // 클릭 이벤트
   clickButton.addEventListener('click', () => {
     clickDisplay.textContent = ++clicks;
+    playClickSound();
   });
 
   // 시작 버튼 이벤트
   startButton.addEventListener('click', startGame);
+
+  // 오디오 초기화
+  initAudio();
 }
 
+// guitar 페이지 스크립트
 if (Utils.isPage('guitar')) {
   // 오디오 관련 상수와 변수
   let audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -705,3 +731,59 @@ if (Utils.isPage('guitar')) {
   initGame();
 }
 
+
+// travel 페이지 스크립트
+if (Utils.isPage('travel')) {
+  // Slider 클래스
+  class Slider {
+    constructor(containerId) {
+      this.container = document.getElementById(containerId);
+      this.slides = this.container.querySelector('.slides');
+      this.dots = this.container.querySelector('.dots');
+      this.currentIndex = 0;
+      this.totalSlides = this.container.querySelectorAll('.slide').length;
+
+      this.createDots();
+      this.updateSlidePosition();
+    }
+
+    // 도트 생성
+    createDots() {
+      for (let i = 0; i < this.totalSlides; i++) {
+        const dot = document.createElement('span');
+        dot.classList.add('dot');
+        dot.onclick = () => this.currentSlide(i + 1);
+        this.dots.appendChild(dot);
+      }
+    }
+
+    // 현재 슬라이드로 이동
+    currentSlide(n) {
+      if (n >= 1 && n <= this.totalSlides) {
+        this.currentIndex = n - 1;
+        this.updateSlidePosition();
+      }
+    }
+
+    // 슬라이드 위치 업데이트
+    updateSlidePosition() {
+      this.slides.style.transform = `translateX(${-this.currentIndex * 100}%)`;
+      this.updateDots();
+    }
+
+    // 도트 업데이트
+    updateDots() {
+      const dots = this.container.querySelectorAll('.dot');
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === this.currentIndex);
+      });
+    }
+  }
+
+  // 슬라이더 생성
+  const slider1 = new Slider('slider1');
+
+  // 슬라이더 추가 시 ID 부여 후 변수로 생성 가능
+  // ex ) const slider2 = new Slider('slider2');
+  // 이미지 개수에 따라 dot 자동 생성 및 슬라이드 이동 가능
+}

@@ -1007,3 +1007,71 @@ button:hover {
   margin: 0.625rem 0;
 }
 /* ========== guitar.html CSS End ========== */
+
+
+/* ========== travel.html CSS ========== */
+.travel-icon {
+  filter: invert(56%) sepia(12%) saturate(2378%) hue-rotate(314deg) brightness(95%) contrast(92%);
+  animation: rotate 2s linear infinite;
+}
+
+.travel--content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.travel--title {
+  font-size: var(--font-heading);
+  font-weight: var(--font-weight-semibold);
+  margin-top: 1.5rem;
+}
+
+.slider-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+  overflow: hidden;
+}
+
+.slides {
+  display: flex;
+  transition: transform 1s ease;
+  width: 100%;
+}
+
+.slide {
+  flex: 0 0 100%;
+  width: 100%;
+}
+
+.slides img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.dots {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.dot {
+  height: 13px;
+  width: 13px;
+  margin: 0 5px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.dot.active {
+  background-color: #717171;
+}
+/* ========== travel.html CSS End ========== */
