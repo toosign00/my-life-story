@@ -554,3 +554,153 @@ if (Utils.isPage('writing')) {
     }, 1000); // 1000ms 후 시작
   });
 }
+
+
+// game 페이지 스크립트
+if (Utils.isPage('game')) {
+  // 초기 변수 설정
+  let clicks = 0;
+  let timeLeft = 10;
+  let timerId;
+
+  // DOM 요소
+  const clickButton = document.querySelector('.clickButton');
+  const startButton = document.querySelector('.startButton');
+  const timerDisplay = document.getElementById('timer');
+  const clickDisplay = document.getElementById('clickCount');
+
+  // 게임 시작
+  function startGame() {
+    clicks = 0;
+    timeLeft = 10;
+
+    // 초기 화면 설정
+    clickDisplay.textContent = clicks;
+    timerDisplay.textContent = timeLeft;
+
+    // 버튼 활성화/비활성화
+    clickButton.disabled = false;
+    startButton.disabled = true;
+
+    // 타이머 실행
+    timerId = setInterval(() => {
+      timerDisplay.textContent = --timeLeft;
+
+      if (timeLeft <= 0) endGame();
+    }, 1000);
+  }
+
+  // 게임 종료
+  function endGame() {
+    clearInterval(timerId);
+
+    // 버튼 상태 초기화
+    clickButton.disabled = true;
+    startButton.disabled = false;
+
+    alert(`게임 종료! 총 클릭 수: ${clicks}`);
+  }
+
+  // 클릭 이벤트
+  clickButton.addEventListener('click', () => {
+    clickDisplay.textContent = ++clicks;
+  });
+
+  // 시작 버튼 이벤트
+  startButton.addEventListener('click', startGame);
+}
+
+if (Utils.isPage('guitar')) {
+  // 오디오 관련 상수와 변수
+  let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  let audioElement = new Audio();
+
+  // 코드 데이터
+  const chords = [
+    { name: 'C', audio: './assets/sounds/major-c.wav' },
+    { name: 'D', audio: './assets/sounds/major-d.wav' },
+    { name: 'E', audio: './assets/sounds/major-e.wav' },
+    { name: 'F', audio: './assets/sounds/major-f.wav' },
+    { name: 'G', audio: './assets/sounds/major-g.wav' },
+    { name: 'A', audio: './assets/sounds/major-a.wav' },
+    { name: 'Am', audio: './assets/sounds/minor-a.wav' },
+    { name: 'Em', audio: './assets/sounds/minor-e.wav' },
+    { name: 'Dm', audio: './assets/sounds/minor-d.wav' }
+  ];
+
+  // DOM 요소
+  const playButton = document.getElementById('playSound');
+  const resultElement = document.getElementById('result');
+  const errorElement = document.getElementById('error');
+  const optionButtons = document.querySelectorAll('.chord-btn');
+
+  let currentChord = null;
+
+  // 오디오 로드 체크
+  function preloadAudio() {
+    chords.forEach(chord => {
+      const tempAudio = new Audio();
+      tempAudio.src = chord.audio;
+    });
+  }
+
+  // 게임 초기화
+  function initGame() {
+    preloadAudio();
+    newRound();
+
+    // 옵션 버튼 클릭 이벤트
+    optionButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        checkAnswer(button.dataset.chord);
+      });
+    });
+
+    // 재생 버튼 클릭 이벤트
+    playButton.addEventListener('click', playChordAudio);
+  }
+
+  // 새로운 라운드 시작
+  function newRound() {
+    currentChord = chords[Math.floor(Math.random() * chords.length)];
+    resultElement.textContent = '';
+    errorElement.textContent = '';
+    playButton.disabled = false;
+  }
+
+  // 정답 체크
+  function checkAnswer(answer) {
+    if (answer === currentChord.name) {
+      resultElement.textContent = '정답입니다! 🎸';
+      resultElement.style.color = 'green';
+    } else {
+      resultElement.textContent = `틀렸습니다. 정답은 ${currentChord.name}입니다.`;
+      resultElement.style.color = 'red';
+    }
+
+    playButton.disabled = true;
+
+    setTimeout(() => {
+      newRound();
+    }, 2000);
+  }
+
+  // 코드 소리 재생
+  function playChordAudio() {
+    if (currentChord) {
+      playButton.disabled = true;
+
+      audioElement.src = currentChord.audio;
+      audioElement.play().catch(() => {
+        errorElement.textContent = '오디오 재생에 실패했습니다.';
+      });
+
+      audioElement.onended = () => {
+        playButton.disabled = false;
+      };
+    }
+  }
+
+  // 게임 시작
+  initGame();
+}

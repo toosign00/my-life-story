@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <link rel="stylesheet" href="./styles/normalize.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap"
+            rel="stylesheet">
+        <link rel="stylesheet" as="style" crossorigin
+            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <link rel="stylesheet" href="./styles/main.css" />
+    </head>
+
+    <body data-page="guitar">
+        <main>
+            <div class="content">
+                <div class="content--header">
+                    <a href="/" class="nav--back">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                    <img src="./assets/images/clover.svg" class="hobby--icon guitar-icon" alt="클로버 아이콘">
+                </div>
+                <div class="guitar--content">
+                    <div class="guitar--wrap">
+                        <h1 class="guitar--title">🎸 기타 코드를 맞춰라!</h1>
+                        <div id="loading" class="loading"></div>
+                        <button id="playSound" class="play-btn">코드 듣기</button>
+                        <div class="options" id="options">
+                            <button class="chord-btn" data-chord="C">C</button>
+                            <button class="chord-btn" data-chord="D">D</button>
+                            <button class="chord-btn" data-chord="E">E</button>
+                            <button class="chord-btn" data-chord="F">F</button>
+                            <button class="chord-btn" data-chord="G">G</button>
+                            <button class="chord-btn" data-chord="A">A</button>
+                            <button class="chord-btn" data-chord="Am">Am</button>
+                            <button class="chord-btn" data-chord="Em">Em</button>
+                            <button class="chord-btn" data-chord="Dm">Dm</button>
+                        </div>
+                        <div id="result" class="result"></div>
+                        <div id="error" class="error"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <script src="./assets/scripts/main.js"></script>
+    </body>
+
+</html>

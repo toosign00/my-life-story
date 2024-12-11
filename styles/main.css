@@ -697,7 +697,7 @@ main {
   -webkit-appearance: none;
   width: 0.75rem;
   height: 0.75rem;
-  background: var(--black);
+  background: #FCBBA9;
   border-radius: 50%;
   cursor: pointer;
   margin-top: -0.25rem;
@@ -816,4 +816,194 @@ button:hover {
 .choice-btn:hover {
   background-color: var(--white);
 }
+
 /* ========== writing.html CSS End  ========== */
+
+
+/* ========== game.html CSS ========== */
+.game-icon {
+  filter: invert(77%) sepia(55%) saturate(862%) hue-rotate(289deg) brightness(103%) contrast(96%);
+  animation: rotate 2s linear infinite;
+}
+
+.game--content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.game--wrap {
+  width: 40%;
+  height: 60%;
+  background-color: var(--white);
+  border-radius: 1rem;
+  border: solid 0.006rem var(--black);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.game--title {
+  font-size: var(--font-heading);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+}
+
+.game--status {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stats {
+  font-size: var(--font-caption);
+  font-weight: var(--font-weight-regular);
+}
+
+.clickButton {
+  padding: 0.5rem 3rem;
+  font-size: var(--font-body);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  color: var(--white);
+  background-color: #FF80C2;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-bottom: 2rem;
+}
+
+.clickButton:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.clickButton:hover:not(:disabled) {
+  background-color: #ff0184;
+}
+
+.startButton {
+  width: 50%;
+  margin: 0 auto;
+  padding: 0.25rem 0.1rem;
+  font-size: var(--font-body);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  background-color: #FF80C2;
+  color: var(--white);
+  border: none;
+  border-radius: 2rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* ========== game.html CSS End ========== */
+
+
+/* ========== guitar.html CSS ========== */
+.guitar-icon {
+  filter: invert(41%) sepia(85%) saturate(1519%) hue-rotate(212deg) brightness(101%) contrast(98%);
+  animation: rotate 2s linear infinite;
+}
+
+.guitar--content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.guitar--wrap {
+  width: 80%;
+  background-color: var(--white);
+  padding: 1rem;
+  border-radius: 2rem;
+
+  box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.guitar--title {
+  font-size: var(--font-sub-heading);
+  text-align: center;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+  margin: 1rem 0;
+}
+
+.guitar--content button {
+  padding: 0.625rem 1.25rem;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 0.313rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.play-btn {
+  background-color: #4CAF50;
+  color: var(--white);
+  margin: 1.25rem 0;
+  min-width: 12.5rem;
+}
+
+.play-btn:hover {
+  background-color: #45a049;
+}
+
+.play-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.chord-btn {
+  background-color: #6280FF;
+  color: var(--white);
+}
+
+.chord-btn:hover {
+  opacity: 0.8;
+}
+
+.result {
+  height: 2rem;
+  line-height: 2rem;
+  margin: 1.25rem 0;
+  font-size: 1.2rem;
+  font-weight: var(--font-weight-bold);
+  min-height: 1.2rem;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap
+}
+
+.correct {
+  color: #4CAF50;
+}
+
+.wrong {
+  color: #f44336;
+}
+
+.loading {
+  margin: 1.25rem 0;
+  color: #333;
+}
+
+.error {
+  color: #f44336;
+  margin: 0.625rem 0;
+}
+/* ========== guitar.html CSS End ========== */

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>기타 코드 맞추기 게임</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+
+        .game-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .score {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .play-btn {
+            background-color: #4CAF50;
+            color: white;
+            margin: 20px 0;
+            min-width: 200px;
+        }
+
+        .play-btn:hover {
+            background-color: #45a049;
+        }
+
+        .play-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .chord-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .chord-btn:hover {
+            background-color: #1976D2;
+        }
+
+        .result {
+            margin: 20px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 1.2em;
+        }
+
+        .correct {
+            color: #4CAF50;
+        }
+
+        .wrong {
+            color: #f44336;
+        }
+
+        .loading {
+            margin: 20px 0;
+            color: #666;
+        }
+
+        .error {
+            color: #f44336;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>기타 코드 맞추기 게임</h1>
+        <div class="score">점수: <span id="score">0</span></div>
+        <div id="loading" class="loading"></div>
+        <button id="playSound" class="play-btn">코드 소리 듣기</button>
+        <div class="options" id="options"></div>
+        <div id="result" class="result"></div>
+        <div id="error" class="error"></div>
+    </div>
+
+    <script>
+        // 오디오 컨텍스트 및 요소들
+        let audioContext;
+        let audioElement = new Audio();
+        
+        // 게임 상태
+        const chords = [
+            { name: 'C', audio: './assets/sounds/major-c.wav' },
+            { name: 'D', audio: './assets/sounds/major-d.wav' },
+            { name: 'E', audio: './assets/sounds/major-e.wav' },
+            { name: 'F', audio: './assets/sounds/major-f.wav' },
+            { name: 'G', audio: './assets/sounds/major-g.wav' },
+            { name: 'A', audio: './assets/sounds/major-a.wav' },
+            { name: 'Am', audio: './assets/sounds/minor-a.wav' },
+            { name: 'Em', audio: './assets/sounds/minor-e.wav' },
+            { name: 'Dm', audio: './assets/sounds/minor-d.wav' }
+        ];
+
+        let currentChord = null;
+        let score = 0;
+        let isLoading = true;
+
+        // DOM 요소들
+        const scoreElement = document.getElementById('score');
+        const resultElement = document.getElementById('result');
+        const optionsContainer = document.getElementById('options');
+        const playButton = document.getElementById('playSound');
+        const loadingElement = document.getElementById('loading');
+        const errorElement = document.getElementById('error');
+
+        // 오디오 초기화
+        async function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                loadingElement.textContent = '사운드 로딩 중...';
+                
+                // 모든 오디오 파일 프리로드
+                await Promise.all(chords.map(chord => {
+                    return fetch(chord.audio)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`Failed to load: ${chord.audio}`);
+                            }
+                            return response;
+                        });
+                }));
+
+                isLoading = false;
+                loadingElement.textContent = '';
+                playButton.disabled = false;
+            } catch (error) {
+                console.error('Audio initialization failed:', error);
+                errorElement.textContent = '오디오 파일을 로드하는데 실패했습니다. 파일 경로를 확인해주세요.';
+                isLoading = false;
+                loadingElement.textContent = '';
+            }
+        }
+
+        // 게임 초기화
+        function initGame() {
+            // 버튼 비활성화
+            playButton.disabled = true;
+            
+            // 오디오 초기화
+            initAudio();
+            
+            // 옵션 버튼 생성
+            chords.forEach(chord => {
+                const button = document.createElement('button');
+                button.textContent = chord.name;
+                button.className = 'chord-btn';
+                button.addEventListener('click', () => checkAnswer(chord.name));
+                optionsContainer.appendChild(button);
+            });
+
+            // 새로운 라운드 시작
+            newRound();
+        }
+
+        // 새로운 라운드 시작
+        function newRound() {
+            currentChord = chords[Math.floor(Math.random() * chords.length)];
+            resultElement.textContent = '';
+            resultElement.className = 'result';
+            playButton.disabled = isLoading;
+            errorElement.textContent = '';
+        }
+
+        // 답 체크
+        function checkAnswer(answer) {
+            if (!currentChord || isLoading) return;
+
+            if (answer === currentChord.name) {
+                score += 10;
+                resultElement.textContent = '정답입니다! 🎸';
+                resultElement.className = 'result correct';
+            } else {
+                score = Math.max(0, score - 5);
+                resultElement.textContent = `틀렸습니다. 정답은 ${currentChord.name}입니다.`;
+                resultElement.className = 'result wrong';
+            }
+
+            scoreElement.textContent = score;
+            playButton.disabled = true;
+            
+            // 잠시 후 새 라운드 시작
+            setTimeout(() => {
+                newRound();
+                playButton.disabled = false;
+            }, 2000);
+        }
+
+        // 오디오 재생
+        function playChordAudio() {
+            if (currentChord && !isLoading) {
+                playButton.disabled = true;
+                errorElement.textContent = '';
+
+                // 이전 재생 중지
+                audioElement.pause();
+                audioElement.currentTime = 0;
+
+                // 새로운 오디오 소스 설정 및 재생
+                audioElement.src = currentChord.audio;
+                
+                audioElement.play()
+                    .then(() => {
+                        // 재생 성공
+                    })
+                    .catch(error => {
+                        console.error('Audio playback failed:', error);
+                        errorElement.textContent = '오디오 재생에 실패했습니다.';
+                        playButton.disabled = false;
+                    });
+
+                // 재생 완료 시 버튼 활성화
+                audioElement.onended = () => {
+                    playButton.disabled = false;
+                };
+            }
+        }
+
+        // 재생 버튼 이벤트
+        playButton.addEventListener('click', playChordAudio);
+
+        // 게임 시작
+        initGame();
+    </script>
+</body>
+</html>
