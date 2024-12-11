@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Development</title>
+    <link rel="stylesheet" href="./styles/normalize.css" />
+    <!-- Google Web Font, Hanken Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet">
+
+    <!-- Pretendard Font -->
+    <link rel="stylesheet" as="style" crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./styles/main.css" />
+    <style>
+      .development-icon {
+        filter: invert(38%) sepia(74%) saturate(552%) hue-rotate(159deg) brightness(97%) contrast(88%);
+        animation: rotate 2s linear infinite;
+      }
+
+      .emoji--content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+        perspective: 1500px;
+      }
+
+      .emoji--container {
+        position: relative;
+        width: fit-content;
+        height: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transform-style: preserve-3d;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        perspective-origin: center;
+      }
+
+      .emoji--fine,
+      .emoji--sad {
+        position: absolute;
+        width: fit-content;
+        height: auto;
+        backface-visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: var(--font-heading);
+        white-space: nowrap;
+        cursor: pointer;
+      }
+
+      .emoji--image {
+        width: 15rem;
+        height: 15rem;
+      }
+
+      .emoji--fine {
+        transform: rotateY(0deg);
+      }
+
+      .emoji--sad {
+        transform: rotateY(180deg);
+      }
+
+      .emoji--container.flipped {
+        transform: rotateY(180deg);
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotateY(0deg);
+        }
+
+        to {
+          transform: rotateY(180deg);
+        }
+      }
+
+      .spinning {
+        animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .emoji--fine::after,
+      .emoji--sad::after {
+        content: '';
+        position: absolute;
+        bottom: -20px;
+        width: 80%;
+        height: 20px;
+        background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
+        opacity: 0.5;
+        transition: all 0.3s ease;
+      }
+
+      .emoji--container:hover .emoji--fine::after,
+      .emoji--container:hover .emoji--sad::after {
+        opacity: 0.7;
+        transform: scaleX(1.1);
+      }
+    </style>
+  </head>
+
+  <body data-page="development">
+    <main>
+      <div class="content">
+        <div class="content--header">
+          <a href="/" class="nav--back">
+            <i class="bi bi-arrow-left"></i>
+          </a>
+          <img src="./assets/images/clover.svg" class="hobby--icon development-icon" alt="클로버 아이콘">
+        </div>
+        <div class="emoji--content">
+          <div class="emoji--container">
+            <div class="emoji--fine">
+              <p>NICE!!!</p>
+              <img src="./assets/images/emoji-nice.webp" class="emoji--image" alt="웃는 이모지">
+            </div>
+            <div class="emoji--sad">
+              <p style="color: red;">ERROR!!! OH NO!!!</p>
+              <img src="./assets/images/emoji-sad.webp" class="emoji--image" alt="슬픈 이모지">
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const emojiContainer = document.querySelector('.emoji--container');
+
+      emojiContainer.addEventListener('click', () => {
+        emojiContainer.classList.toggle('flipped');
+        emojiContainer.classList.add('spinning');
+      });
+
+    </script>
+  </body>
+
+</html>

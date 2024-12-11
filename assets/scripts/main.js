@@ -14,168 +14,7 @@ const Utils = {
   }
 };
 
-// 이미지 필터 클래스
-class ImageFilter {
-  constructor(canvasId) {
-    this.canvas = document.getElementById(canvasId);
-    this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
-    this.image = null;
-    this.originalImageData = null;
-    this.imageArea = {
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0
-    };
-  }
-
-  loadImage(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.image = new Image();
-        this.image.onload = () => {
-          const targetSize = 350;
-          const canvas = this.canvas;
-
-          const ratio = Math.min(
-            targetSize / this.image.width,
-            targetSize / this.image.height
-          );
-
-          const width = this.image.width * ratio;
-          const height = this.image.height * ratio;
-
-          canvas.width = targetSize;
-          canvas.height = targetSize;
-
-          this.ctx.fillStyle = '#FFFFFF';
-          this.ctx.fillRect(0, 0, targetSize, targetSize);
-
-          const x = (targetSize - width) / 2;
-          const y = (targetSize - height) / 2;
-
-          this.imageArea = {
-            x: Math.floor(x),
-            y: Math.floor(y),
-            width: Math.floor(width),
-            height: Math.floor(height)
-          };
-
-          this.ctx.drawImage(this.image, x, y, width, height);
-          this.originalImageData = this.ctx.getImageData(0, 0, canvas.width, canvas.height);
-          resolve();
-        };
-        this.image.onerror = reject;
-        this.image.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  isInsideImageArea(x, y) {
-    return x >= this.imageArea.x &&
-      x < this.imageArea.x + this.imageArea.width &&
-      y >= this.imageArea.y &&
-      y < this.imageArea.y + this.imageArea.height;
-  }
-
-  reset() {
-    if (this.originalImageData) {
-      this.ctx.putImageData(this.originalImageData, 0, 0);
-    }
-  }
-
-  grayscale(intensity = 100) {
-    const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-    const data = imageData.data;
-    const factor = intensity / 100;
-
-    for (let y = 0; y < this.canvas.height; y++) {
-      for (let x = 0; x < this.canvas.width; x++) {
-        const i = (y * this.canvas.width + x) * 4;
-
-        if (this.isInsideImageArea(x, y)) {
-          const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-          data[i] = data[i] + (avg - data[i]) * factor;
-          data[i + 1] = data[i + 1] + (avg - data[i + 1]) * factor;
-          data[i + 2] = data[i + 2] + (avg - data[i + 2]) * factor;
-        }
-      }
-    }
-
-    this.ctx.putImageData(imageData, 0, 0);
-  }
-
-  sepia(intensity = 100) {
-    const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-    const data = imageData.data;
-    const factor = intensity / 100;
-
-    for (let y = 0; y < this.canvas.height; y++) {
-      for (let x = 0; x < this.canvas.width; x++) {
-        const i = (y * this.canvas.width + x) * 4;
-
-        if (this.isInsideImageArea(x, y)) {
-          const r = data[i];
-          const g = data[i + 1];
-          const b = data[i + 2];
-
-          const tr = Math.min(255, (r * (1 - factor)) + (((r * 0.393) + (g * 0.769) + (b * 0.189)) * factor));
-          const tg = Math.min(255, (g * (1 - factor)) + (((r * 0.349) + (g * 0.686) + (b * 0.168)) * factor));
-          const tb = Math.min(255, (b * (1 - factor)) + (((r * 0.272) + (g * 0.534) + (b * 0.131)) * factor));
-
-          data[i] = tr;
-          data[i + 1] = tg;
-          data[i + 2] = tb;
-        }
-      }
-    }
-
-    this.ctx.putImageData(imageData, 0, 0);
-  }
-
-  brightness(value) {
-    const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-    const data = imageData.data;
-
-    for (let y = 0; y < this.canvas.height; y++) {
-      for (let x = 0; x < this.canvas.width; x++) {
-        const i = (y * this.canvas.width + x) * 4;
-
-        if (this.isInsideImageArea(x, y)) {
-          data[i] = Math.min(255, Math.max(0, data[i] + value));
-          data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + value));
-          data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + value));
-        }
-      }
-    }
-
-    this.ctx.putImageData(imageData, 0, 0);
-  }
-
-  contrast(value) {
-    const factor = (259 * (value + 255)) / (255 * (259 - value));
-    const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-    const data = imageData.data;
-
-    for (let y = 0; y < this.canvas.height; y++) {
-      for (let x = 0; x < this.canvas.width; x++) {
-        const i = (y * this.canvas.width + x) * 4;
-
-        if (this.isInsideImageArea(x, y)) {
-          data[i] = Math.min(255, Math.max(0, factor * (data[i] - 128) + 128));
-          data[i + 1] = Math.min(255, Math.max(0, factor * (data[i + 1] - 128) + 128));
-          data[i + 2] = Math.min(255, Math.max(0, factor * (data[i + 2] - 128) + 128));
-        }
-      }
-    }
-
-    this.ctx.putImageData(imageData, 0, 0);
-  }
-}
-
-// 메인 실행 코드
+// 전체 페이지 스크립트
 document.addEventListener('DOMContentLoaded', () => {
   // 페이지 로드 시 컨테이너 표시
   const container = document.querySelector('.poster') || document.querySelector('.content');
@@ -227,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // star 페이지 스크립트
-  if (Utils.isPage('star')) {
+  if (Utils.isPage('stargazing')) {
     let currentStarColor = '#F5C817';
 
     const colorPicker = document.getElementById('starColor');
@@ -263,6 +102,168 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // photo 페이지 스크립트
   if (Utils.isPage('photo')) {
+
+    // 이미지 필터 클래스
+    class ImageFilter {
+      constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
+        this.image = null;
+        this.originalImageData = null;
+        this.imageArea = {
+          x: 0,
+          y: 0,
+          width: 0,
+          height: 0
+        };
+      }
+
+      loadImage(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.image = new Image();
+            this.image.onload = () => {
+              const targetSize = 350;
+              const canvas = this.canvas;
+
+              const ratio = Math.min(
+                targetSize / this.image.width,
+                targetSize / this.image.height
+              );
+
+              const width = this.image.width * ratio;
+              const height = this.image.height * ratio;
+
+              canvas.width = targetSize;
+              canvas.height = targetSize;
+
+              this.ctx.fillStyle = '#FFFFFF';
+              this.ctx.fillRect(0, 0, targetSize, targetSize);
+
+              const x = (targetSize - width) / 2;
+              const y = (targetSize - height) / 2;
+
+              this.imageArea = {
+                x: Math.floor(x),
+                y: Math.floor(y),
+                width: Math.floor(width),
+                height: Math.floor(height)
+              };
+
+              this.ctx.drawImage(this.image, x, y, width, height);
+              this.originalImageData = this.ctx.getImageData(0, 0, canvas.width, canvas.height);
+              resolve();
+            };
+            this.image.onerror = reject;
+            this.image.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      isInsideImageArea(x, y) {
+        return x >= this.imageArea.x &&
+          x < this.imageArea.x + this.imageArea.width &&
+          y >= this.imageArea.y &&
+          y < this.imageArea.y + this.imageArea.height;
+      }
+
+      reset() {
+        if (this.originalImageData) {
+          this.ctx.putImageData(this.originalImageData, 0, 0);
+        }
+      }
+
+      grayscale(intensity = 100) {
+        const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        const data = imageData.data;
+        const factor = intensity / 100;
+
+        for (let y = 0; y < this.canvas.height; y++) {
+          for (let x = 0; x < this.canvas.width; x++) {
+            const i = (y * this.canvas.width + x) * 4;
+
+            if (this.isInsideImageArea(x, y)) {
+              const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+              data[i] = data[i] + (avg - data[i]) * factor;
+              data[i + 1] = data[i + 1] + (avg - data[i + 1]) * factor;
+              data[i + 2] = data[i + 2] + (avg - data[i + 2]) * factor;
+            }
+          }
+        }
+
+        this.ctx.putImageData(imageData, 0, 0);
+      }
+
+      sepia(intensity = 100) {
+        const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        const data = imageData.data;
+        const factor = intensity / 100;
+
+        for (let y = 0; y < this.canvas.height; y++) {
+          for (let x = 0; x < this.canvas.width; x++) {
+            const i = (y * this.canvas.width + x) * 4;
+
+            if (this.isInsideImageArea(x, y)) {
+              const r = data[i];
+              const g = data[i + 1];
+              const b = data[i + 2];
+
+              const tr = Math.min(255, (r * (1 - factor)) + (((r * 0.393) + (g * 0.769) + (b * 0.189)) * factor));
+              const tg = Math.min(255, (g * (1 - factor)) + (((r * 0.349) + (g * 0.686) + (b * 0.168)) * factor));
+              const tb = Math.min(255, (b * (1 - factor)) + (((r * 0.272) + (g * 0.534) + (b * 0.131)) * factor));
+
+              data[i] = tr;
+              data[i + 1] = tg;
+              data[i + 2] = tb;
+            }
+          }
+        }
+
+        this.ctx.putImageData(imageData, 0, 0);
+      }
+
+      brightness(value) {
+        const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        const data = imageData.data;
+
+        for (let y = 0; y < this.canvas.height; y++) {
+          for (let x = 0; x < this.canvas.width; x++) {
+            const i = (y * this.canvas.width + x) * 4;
+
+            if (this.isInsideImageArea(x, y)) {
+              data[i] = Math.min(255, Math.max(0, data[i] + value));
+              data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + value));
+              data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + value));
+            }
+          }
+        }
+
+        this.ctx.putImageData(imageData, 0, 0);
+      }
+
+      contrast(value) {
+        const factor = (259 * (value + 255)) / (255 * (259 - value));
+        const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        const data = imageData.data;
+
+        for (let y = 0; y < this.canvas.height; y++) {
+          for (let x = 0; x < this.canvas.width; x++) {
+            const i = (y * this.canvas.width + x) * 4;
+
+            if (this.isInsideImageArea(x, y)) {
+              data[i] = Math.min(255, Math.max(0, factor * (data[i] - 128) + 128));
+              data[i + 1] = Math.min(255, Math.max(0, factor * (data[i + 1] - 128) + 128));
+              data[i + 2] = Math.min(255, Math.max(0, factor * (data[i + 2] - 128) + 128));
+            }
+          }
+        }
+
+        this.ctx.putImageData(imageData, 0, 0);
+      }
+    }
+
     const filter = new ImageFilter('myCanvas');
 
     // 파일 입력 이벤트 처리
@@ -428,5 +429,128 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // write 페이지 스크립트
 if (Utils.isPage('writing')) {
+  const storyData = {
+    // 질문
+    start: {
+      text: "당신은 길을 걸어가다가 짝사랑하는 그/그녀를 만났습니다. 그/그녀는 당신에게 반갑게 인사를 건냈습니다.",
+      choices: [
+        { text: "수줍게 인사를 한다", next: "shy_greeting" },
+        { text: "인사를 피하고 서둘러 자리를 뜬다", next: "run_away" }
+      ]
+    },
+    // 선택지
+    shy_greeting: {
+      text: "당신은 수줍게 손을 흔들며 인사를 했습니다. 그/그녀는 당신의 귀여운 모습에 미소를 지었습니다.",
+      choices: [
+        { text: "오늘 날씨 좋다고 말한다", next: "weather_talk" },
+        { text: "급하게 자리를 피한다", next: "run_away" }
+      ]
+    },
+    // 선택지
+    run_away: {
+      text: "당신은 긴장한 나머지 자리를 피했습니다. 도망치듯 그 자리를 벗어나며 아쉬움이 남습니다.",
+      choices: [
+        { text: "처음부터 다시", next: "start" }
+      ]
+    },
+    // 질문
+    weather_talk: {
+      text: "\"날씨가 정말 좋네.\" 당신의 말에 그/그녀는 고개를 끄덕이며 \"그러게. 같이 산책이라도 할까?\" 라고 제안합니다.",
+      choices: [
+        { text: "수줍게 수락한다", next: "daily_talk" },
+        { text: "다음에 하자고 한다", next: "next_time" }
+      ]
+    },
+    //선택지
+    next_time: {
+      text: "\"아... 그래..! 다음에 하자.\" 그/그녀의 표정에서 실망감이 보입니다. 그녀는 당신에 대한 마음을 접기 시작합니다.",
+      choices: [
+        { text: "처음부터 다시", next: "start" }
+      ]
+    },
+    // 선택지
+    daily_talk: {
+      text: "일상적인 대화를 나누며 당신들은 서로에 대해 더 알아가게 됩니다. 대화가 즐겁게 이어집니다.",
+      choices: [
+        { text: "더 깊은 이야기를 나눈다", next: "deep_talk" },
+        { text: "갑자기 급한 일이 있다며 자리를 피한다", next: "disappointed__talk" }
+      ]
+    },
+    // 선택지 엔딩
+    deep_talk: {
+      text: "대화가 깊어질수록 서로에 대한 이해도 깊어집니다. 특별한 인연의 시작이 될 것 같네요. 행복하세요.",
+      choices: [
+        { text: "처음부터 다시", next: "start" }
+      ]
+    },
+    disappointed__talk: {
+      text: "\"갑자기 어디가는거야..? \" 그/그녀는 실망한 표정으로 당신을 보며 자리를 떠납니다.",
+      choices: [
+        { text: "처음부터 다시", next: "start" }
+      ]
+    }
+  };
 
+
+  let writingText = document.querySelector('.writing--text');
+  let choicesDiv = document.querySelector('.choices');
+  let currentScene = 'start';
+  let isTyping = false;
+
+  // 타이핑 효과 함수
+  function typeWriter(text, element, callback) {
+    isTyping = true;
+    let index = 0;
+    element.textContent = '';
+
+    // 타이핑 효과
+    function type() {
+      if (index < text.length) {
+        element.textContent += text.charAt(index);
+        index++;
+        setTimeout(type, 30); // 타이핑 속도 조정
+      } else {
+        isTyping = false;
+        if (callback) callback();
+      }
+    }
+
+    // 타이핑 시작
+    type();
+  }
+
+  // 선택지 함수
+  function showChoices(choices) {
+    choicesDiv.innerHTML = '';
+    choices.forEach(choice => {
+      const button = document.createElement('button');
+      button.textContent = choice.text;
+      button.classList.add('choice-btn');
+      button.addEventListener('click', () => {
+        if (!isTyping) {
+          updateScene(choice.next);
+        }
+      });
+      choicesDiv.appendChild(button);
+    });
+    choicesDiv.style.opacity = '1';
+  }
+
+  // 씬 업데이트 함수
+  function updateScene(sceneId) {
+    currentScene = sceneId;
+    const scene = storyData[sceneId];
+    choicesDiv.style.opacity = '0';
+
+    typeWriter(scene.text, writingText, () => {
+      showChoices(scene.choices);
+    });
+  }
+
+  // 페이지 로드 완료 후 게임 시작
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      updateScene('start');
+    }, 1000); // 1000ms 후 시작
+  });
 }
