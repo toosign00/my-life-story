@@ -442,7 +442,7 @@ if (Utils.isPage('writing')) {
     shy_greeting: {
       text: "당신은 수줍게 손을 흔들며 인사를 했습니다. 그/그녀는 당신의 귀여운 모습에 미소를 지었습니다.",
       choices: [
-        { text: "오늘 날씨 좋다고 말한다", next: "weather_talk" },
+        { text: "오늘 날씨가 좋다고 말한다", next: "weather_talk" },
         { text: "급하게 자리를 피한다", next: "run_away" }
       ]
     },
@@ -704,3 +704,4 @@ if (Utils.isPage('guitar')) {
   // 게임 시작
   initGame();
 }
+
