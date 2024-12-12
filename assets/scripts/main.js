@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 페이지 전환 링크 이벤트 처리
-  document.querySelectorAll('.hobby--item, .nav-back').forEach(link => {
+  document.querySelectorAll('.hobby--item, .nav--back').forEach(link => {
     link.addEventListener('click', e => {
       e.preventDefault();
       const href = link.getAttribute('href');
